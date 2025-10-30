@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keemiaõpe - Happed ja Oksiidid</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+--secondary-color: #6c757d;
+            --background-color: #f8f9fa;
+            --surface-color: #ffffff;
+            --text-color: #212529;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-gray: #e9ecef;
+--font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --border-radius: 0.5rem;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+        body {
+            font-family: var(--font-family);
+background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.6;
+}
+
+        .container {
+            width: 100%;
+max-width: 800px;
+            background-color: var(--surface-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 1.5rem;
+            box-sizing: border-box;
+}
+
+        header {
+            text-align: center;
+margin-bottom: 2rem;
+            border-bottom: 1px solid var(--light-gray);
+            padding-bottom: 1rem;
+        }
+
+        header h1 {
+            margin: 0;
+color: var(--primary-color);
+        }
+
+        .main-menu, .view {
+            display: flex;
+flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+font-size: 1.1rem;
+            padding: 0.8rem 1.2rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.2s, transform 0.1s;
+background-color: var(--primary-color);
+            color: white;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn:hover, .btn:focus {
+            background-color: #0056b3;
+outline: 2px solid #0056b3;
+            outline-offset: 2px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+}
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+}
+        .btn-secondary:hover, .btn-secondary:focus {
+            background-color: #5a6268;
+}
+
+        .btn-success { background-color: var(--success-color);
+}
+        .btn-warning { background-color: var(--warning-color); color: #212529;
+}
+        .btn-danger { background-color: var(--danger-color);
+}
+
+        .hidden {
+            display: none !important;
+}
+
+        /* Views */
+        .view-header {
+            display: flex;
+justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .view-title {
+            font-size: 1.5rem;
+margin: 0;
+        }
+
+        .card {
+            background: var(--surface-color);
+padding: 1.5rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--light-gray);
+            text-align: center;
+}
+
+        .card h3 {
+            margin-top: 0;
+font-size: 1.4rem;
+        }
+
+        .input-field {
+            width: 100%;
+padding: 0.8rem;
+            font-size: 1.1rem;
+            border-radius: var(--border-radius);
+            border: 1px solid #ced4da;
+            box-sizing: border-box;
+            margin-top: 1rem;
+}
+
+        .feedback {
+            margin-top: 1rem;
+padding: 1rem;
+            border-radius: var(--border-radius);
+            font-weight: bold;
+            text-align: left;
+            font-family: monospace;
+            font-size: 1.1rem;
+}
+        .feedback.correct { background-color: #d4edda; color: #155724;
+text-align: center;}
+        .feedback.almost { background-color: #fff3cd; color: #856404;
+}
+        .feedback.wrong { background-color: #f8d7da; color: #721c24;
+}
+        .diff-line {
+            word-wrap: break-word;
+}
+        .diff-line .incorrect {
+            background-color: #ffcccc;
+color: #a60000;
+        }
+        .diff-line .correct {
+            background-color: #cce8d2;
+color: #0b4d19;
+        }
+
+        /* Flashcard styles */
+        .flashcard-container {
+            perspective: 1000px;
+min-height: 200px;
+            cursor: pointer;
+        }
+        .flashcard {
+            width: 100%;
+height: 200px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+}
+        .flashcard-face {
+            position: absolute;
+width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            padding: 1rem;
+            box-sizing: border-box;
+            border-radius: var(--border-radius);
+box-shadow: var(--box-shadow);
+        }
+        .flashcard-front {
+            background: var(--surface-color);
+border: 1px solid var(--light-gray);
+        }
+        .flashcard-back {
+            background: var(--light-gray);
+transform: rotateY(180deg);
+            flex-direction: column;
+        }
+        .flashcard-nav {
+            display: flex;
+justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        #flashcard-counter {
+            font-size: 1.1rem;
+font-weight: bold;
+            color: var(--secondary-color);
+        }
+        .flashcard-actions {
+            position: absolute;
+bottom: 10px;
+            right: 10px;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .action-icon {
+            background: none;
+border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Fun learn styles */
+        .choice-btn {
+            background-color: var(--surface-color);
+border: 1px solid var(--secondary-color);
+            color: var(--text-color);
+        }
+
+        .word-bank, .sentence-area {
+            display: flex;
+flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 1rem;
+            border: 2px dashed var(--light-gray);
+            border-radius: var(--border-radius);
+            min-height: 50px;
+            margin-top: 1rem;
+}
+
+        .word-token {
+            padding: 0.5rem 1rem;
+background: var(--secondary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+        }
+
+        /* Test styles */
+        .test-question {
+            margin-bottom: 1.5rem;
+padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        .test-question p {
+            font-weight: bold;
+}
+        .test-result-item {
+            font-size: 0.9rem;
+}
+        .test-result-item .user-answer {
+            font-style: italic;
+color: var(--secondary-color);
+        }
+        .test-result-item .correct-answer {
+            font-weight: bold;
+color: var(--success-color);
+        }
+        #test-summary { text-align: center;
+}
+
+        /* Settings */
+        .settings-section {
+            margin-top: 1.5rem;
+border-top: 1px solid var(--light-gray);
+            padding-top: 1.5rem;
+            text-align: center;
+        }
+        .settings-section label {
+            margin-right: 0.5rem;
+}
+        .settings-section select {
+            padding: 0.4rem;
+border-radius: var(--border-radius);
+            border: 1px solid #ced4da;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Keemiaõpe: Happed ja Oksiidid</h1>
+            <p>Õpi seoseid hapete ja neile vastavate oksiidide vahel.</p>
+        </header>
+
+        <div id="main-menu" class="main-menu">
+            <button class="btn" onclick="app.startMode('write')">Harjuta kirjutama</button>
+    
+        <button class="btn" onclick="app.startMode('flashcards')">Flash-kaardid</button>
+            <button class="btn" onclick="app.startMode('fun')">Õpi lõbusamalt</button>
+            <button class="btn" onclick="app.startMode('test')">Test</button>
+
+            <div class="settings-section">
+                <h4>Sätted</h4>
+                <div>
+                
+    <label for="direction-select">Õppimise suund:</label>
+                    <select id="direction-select" onchange="app.setDirection(this.value)">
+                        <option value="et-en">Hape → Oksiid</option>
+                        <option value="en-et">Oksiid → Hape</option>
+                  
+  </select>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <label><input type="checkbox" id="known-words-toggle" onchange="app.toggleKnownWordsFilter(this.checked)"> Kaasa arvatud juba selgeks õpitud sõnad</label>
+                </div>
+            </div>
+       
+ </div>
+
+        <div id="write-view" class="view hidden">
+            <div class="view-header">
+                <h2 class="view-title">Harjuta kirjutama</h2>
+                <button class="btn btn-secondary" onclick="app.showMenu()">Menüü</button>
+            </div>
+            <div id="write-card" 
+class="card">
+                <h3 id="write-source-phrase"></h3>
+                <input type="text" id="write-input" class="input-field" placeholder="Kirjuta vaste..." aria-label="Vaste">
+                <div id="write-feedback" class="feedback hidden" aria-live="polite"></div>
+                <div style="margin-top: 1rem;
+display: flex; flex-direction: column; gap: 0.5rem;">
+                    <button class="btn" onclick="app.modes.write.checkAnswer()">Kontrolli</button>
+                    <button id="write-next-btn" class="btn btn-secondary hidden" onclick="app.modes.write.next()">Järgmine</button>
+                    <button class="btn btn-warning" onclick="app.modes.write.showHint()">Näita vihjet</button>
+                </div>
+        
+    </div>
+        </div>
+
+        <div id="flashcards-view" class="view hidden">
+            <div class="view-header">
+                <h2 class="view-title">Flash-kaardid</h2>
+                <button class="btn btn-secondary" onclick="app.showMenu()">Menüü</button>
+            </div>
+     
+       <div class="flashcard-container" onclick="this.querySelector('.flashcard').classList.toggle('is-flipped')">
+                <div class="flashcard">
+                    <div class="flashcard-face flashcard-front">
+                        <span id="flashcard-source"></span>
+                    </div>
+       
+             <div class="flashcard-face flashcard-back">
+                        <span id="flashcard-target"></span>
+                        <div class="flashcard-actions">
+                             <button class="action-icon" title="Märgi selgeks" onclick="event.stopPropagation();
+app.modes.flashcards.markAsKnown()">✅</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flashcard-nav">
+               
+ <button class="btn" style="width: 30%" onclick="app.modes.flashcards.prev()">Eelmine</button>
+                <span id="flashcard-counter"></span>
+                <button class="btn" style="width: 30%" onclick="app.modes.flashcards.next()">Järgmine</button>
+            </div>
+        </div>
+
+        <div id="fun-view" class="view hidden">
+            <div class="view-header">
+ 
+               <h2 class="view-title">Õpi lõbusamalt</h2>
+                <button class="btn btn-secondary" onclick="app.showMenu()">Menüü</button>
+            </div>
+            <div id="fun-card" class="card">
+                <h3 id="fun-source-phrase"></h3>
+                <div id="fun-game-area"></div>
+    
+            <div id="fun-feedback" class="feedback hidden" aria-live="polite"></div>
+                <button id="fun-next-btn" class="btn btn-secondary hidden" style="margin-top: 1rem;" onclick="app.modes.fun.next()">Järgmine</button>
+            </div>
+        </div>
+
+        <div id="test-view" class="view hidden">
+            <div class="view-header">
+      
+          <h2 class="view-title">Test</h2>
+                <button class="btn btn-secondary" onclick="app.showMenu()">Menüü</button>
+            </div>
+            <div id="test-setup">
+                <p>Test hõlmab kõiki hetkel valitud fraase.
+Vajuta nuppu, et alustada.</p>
+                <button class="btn" style="margin-top: 1rem;"
+onclick="app.modes.test.start()">Alusta testi</button>
+            </div>
+            <div id="test-questions" class="hidden"></div>
+            <div id="test-results" class="hidden"></div>
+        </div>
+
+    </div>
+
+    <script>
+    const app = {
+        phrases: [
+            // Andmepaarid pildilt (Nimed)
+            { id: 1, et: "väävelhape", en: "vääveltrioksiid" },
+            { id: 2, et: "väävlishape", en: "vääveldioksiid" },
+            { id: 3, et: "süsihape", en: "süsinikdioksiid" },
+            { id: 4, et: "fosforhape", en: "tetrafosfordekaoksiid" },
+            { id: 5, et: "ränhape", en: "ränidioksiid" },
+            { id: 6, et: "lämmastikhape", en: "dilämmastikpentaoksiid" },
+            // Andmepaarid pildilt (Valemid)
+            { id: 7, et: "H₂SO₄", en: "SO₃" },
+            { id: 8, et: "H₂SO₃", en: "SO₂" },
+            { id: 9, et: "H₂CO₃", en: "CO₂" },
+            { id: 10, et: "H₃PO₄", en: "P₄O₁₀" },
+            { id: 11, et: "H₂SiO₃", en: "SiO₂" },
+            { id: 12, et: "HNO₃", en: "N₂O₅" }
+        ],
+
+        knownWords: new Set(),
+        currentMode: 
+null,
+        currentIndex: 0,
+        currentPhrases: [],
+        useAllWords: false,
+        learningDirection: 'et-en', // 'et-en' or 'en-et'
+
+        init() {
+            this.loadSettings();
+document.getElementById('known-words-toggle').checked = this.useAllWords;
+            document.getElementById('direction-select').value = this.learningDirection;
+            document.getElementById('write-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    app.modes.write.checkAnswer();
+                }
+            });
+},
+
+        startMode(mode) {
+            this.currentMode = mode;
+document.getElementById('main-menu').classList.add('hidden');
+            document.getElementById(`${mode}-view`).classList.remove('hidden');
+
+            this.preparePhrases();
+
+            if (this.modes[mode] && typeof this.modes[mode].start === 'function') {
+                this.modes[mode].start();
+}
+        },
+
+        preparePhrases() {
+            let phrasesToUse = this.phrases;
+if (!this.useAllWords) {
+                phrasesToUse = this.phrases.filter(p => !this.knownWords.has(p.id));
+}
+            if (phrasesToUse.length === 0 && this.currentMode !== 'test') { 
+                alert("Kõik sõnad on juba selgeks õpitud! Lülita sisse 'Kaasa arvatud juba selgeks õpitud sõnad', et uuesti harjutada.");
+this.showMenu();
+                return;
+            }
+            this.currentPhrases = this.shuffleArray([...phrasesToUse]);
+            this.currentIndex = 0;
+},
+
+        showMenu() {
+            if (this.currentMode) {
+                const view = document.getElementById(`${this.currentMode}-view`);
+if(view) view.classList.add('hidden');
+
+                if (this.currentMode === 'test') {
+                    document.getElementById('test-setup').classList.remove('hidden');
+document.getElementById('test-questions').classList.add('hidden');
+                    document.getElementById('test-results').classList.add('hidden');
+                }
+            }
+            document.getElementById('main-menu').classList.remove('hidden');
+this.currentMode = null;
+        },
+
+        getCurrentPhrase() {
+            return this.currentPhrases[this.currentIndex];
+},
+
+        getDynamicPhrase(phrase) {
+            if (!phrase) return null;
+if (this.learningDirection === 'en-et') {
+                return { source: phrase.en, target: phrase.et, original: phrase };
+}
+            return { source: phrase.et, target: phrase.en, original: phrase };
+},
+
+        shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+[array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+},
+
+        speak(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('Sinu brauser ei toeta häälsünteesi.');
+}
+        },
+
+        normalizeString(str) {
+            return str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()\[\]]/g, "");
+},
+
+        levenshtein(a, b) {
+            const matrix = [];
+for (let i = 0; i <= b.length; i++) { matrix[i] = [i];
+}
+            for (let j = 0; j <= a.length; j++) { matrix[0][j] = j;
+}
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    const cost = b.charAt(i - 1) == a.charAt(j - 1) ?
+0 : 1;
+                    matrix[i][j] = Math.min(matrix[i - 1][j - 1] + cost, matrix[i][j - 1] + 1, matrix[i - 1][j] + 1);
+}
+            }
+            return matrix[b.length][a.length];
+},
+
+        // ** NEW, SIMPLER DIFF FUNCTION **
+        createDiffHtml(userStr, correctStr) {
+            let userHtml = '';
+let correctHtml = '';
+            const len = Math.max(userStr.length, correctStr.length);
+
+            for (let i = 0; i < len; i++) {
+                const userChar = userStr[i];
+const correctChar = correctStr[i];
+
+                if (userChar === correctChar) {
+                    userHtml += userChar;
+correctHtml += correctChar;
+                } else {
+                    if (userChar !== undefined) {
+                        userHtml += `<span class="incorrect">${userChar}</span>`;
+}
+                    if (correctChar !== undefined) {
+                        correctHtml += `<span class="correct">${correctChar}</span>`;
+}
+                }
+            }
+            return { userHtml, correctHtml };
+},
+
+        loadSettings() {
+            const known = localStorage.getItem('knownWords');
+if (known) this.knownWords = new Set(JSON.parse(known));
+            this.useAllWords = localStorage.getItem('useAllWords') === 'true';
+            this.learningDirection = localStorage.getItem('learningDirection') || 'et-en';
+},
+
+        saveSettings() {
+            localStorage.setItem('knownWords', JSON.stringify(Array.from(this.knownWords)));
+localStorage.setItem('useAllWords', this.useAllWords);
+            localStorage.setItem('learningDirection', this.learningDirection);
+        },
+
+        setDirection(direction) {
+            this.learningDirection = direction;
+this.saveSettings();
+        },
+
+        toggleKnownWordsFilter(checked) {
+            this.useAllWords = checked;
+this.saveSettings();
+        },
+
+        markCurrentAsKnown() {
+            const phrase = this.getCurrentPhrase();
+if (phrase) {
+                this.knownWords.add(phrase.id);
+                this.saveSettings();
+alert(`'${phrase.et} / ${phrase.en}' on märgitud selgeks!`);
+            }
+        },
+
+        modes: {
+            write: {
+                start() { this.next();
+},
+                next() {
+                    if (app.currentIndex >= app.currentPhrases.length) {
+                        alert("Harjutuskord on läbi!");
+app.showMenu();
+                        return;
+                    }
+                    const dynamicPhrase = app.getDynamicPhrase(app.getCurrentPhrase());
+document.getElementById('write-source-phrase').textContent = dynamicPhrase.source;
+                    const input = document.getElementById('write-input');
+                    input.value = '';
+                    input.disabled = false;
+                    document.getElementById('write-feedback').classList.add('hidden');
+                    document.getElementById('write-next-btn').classList.add('hidden');
+                    input.focus();
+},
+                checkAnswer() {
+                    const inputElem = document.getElementById('write-input');
+const userAnswer = inputElem.value.trim();
+                    const currentPhrase = app.getCurrentPhrase();
+                    if (!currentPhrase || userAnswer === "") return;
+
+                    const dynamicPhrase = app.getDynamicPhrase(currentPhrase);
+const feedbackElem = document.getElementById('write-feedback');
+
+                    const normalizedUserAnswer = app.normalizeString(userAnswer);
+                    const normalizedCorrectAnswer = app.normalizeString(dynamicPhrase.target);
+                    const distance = app.levenshtein(normalizedUserAnswer, normalizedCorrectAnswer);
+if (distance === 0) {
+                        feedbackElem.innerHTML = `Õige!
+"${dynamicPhrase.target}"`;
+                        feedbackElem.className = 'feedback correct';
+                        inputElem.disabled = true;
+                        document.getElementById('write-next-btn').classList.remove('hidden');
+                        document.getElementById('write-next-btn').focus();
+                        app.currentIndex++;
+} else {
+                        const diff = app.createDiffHtml(userAnswer, dynamicPhrase.target);
+let message = '';
+                        if (distance <= 2) {
+                            feedbackElem.className = 'feedback almost';
+message = 'Peaaegu! Sul on 1-2 viga. Proovi uuesti.';
+                        } else {
+                            feedbackElem.className = 'feedback wrong';
+message = 'Vigane. Õige vastus on allpool. Proovi uuesti kirjutada.';
+}
+                        feedbackElem.innerHTML = `
+                            <p>${message}</p>
+                            <div class="diff-line">Sina: ${diff.userHtml}</div>
+                
+            <div class="diff-line">Õige: ${diff.correctHtml}</div>
+                        `;
+}
+                    feedbackElem.classList.remove('hidden');
+},
+                showHint() {
+                    const phrase = app.getCurrentPhrase();
+if (!phrase) return;
+                    const dynamicPhrase = app.getDynamicPhrase(phrase);
+                    const hint = dynamicPhrase.target.split(' ').map(word => '_'.repeat(word.length)).join(' ');
+alert(`Vihje: Esimene täht on '${dynamicPhrase.target[0]}'. Struktuur: ${hint}`);
+                }
+            },
+            flashcards: {
+                start() {
+                    this.updateCard();
+},
+                updateCard() {
+                    const phrase = app.getCurrentPhrase();
+if (!phrase) { 
+                        if (confirm("Tegid kõik läbi! Kas soovid uuesti alustada?")) {
+                            app.currentIndex = 0;
+this.updateCard();
+                        } else {
+                            app.showMenu();
+}
+                        return;
+}
+
+                    const dynamicPhrase = app.getDynamicPhrase(phrase);
+const card = document.querySelector('#flashcards-view .flashcard');
+                    card.classList.remove('is-flipped');
+
+                    setTimeout(() => {
+                        document.getElementById('flashcard-source').textContent = dynamicPhrase.source;
+                        document.getElementById('flashcard-target').textContent = dynamicPhrase.target;
+                    }, 200);
+document.getElementById('flashcard-counter').textContent = `Slaid ${app.currentIndex + 1} / ${app.currentPhrases.length}`;
+                },
+                next() {
+                    if (app.currentIndex < app.currentPhrases.length) {
+                        app.currentIndex++;
+}
+                    this.updateCard();
+},
+                prev() {
+                    if (app.currentIndex > 0) {
+                        app.currentIndex--;
+}
+                    this.updateCard();
+},
+                markAsKnown() {
+                    app.markCurrentAsKnown();
+if (app.currentPhrases.length > 1) {
+                        app.preparePhrases();
+this.updateCard();
+                    } else {
+                        app.showMenu();
+}
+                }
+            },
+            fun: {
+                // ... (Fun mode remains unchanged)
+                gameType: 0,
+                start() {
+    
+                app.currentIndex = 0;
+                    this.setupGame();
+},
+                next() {
+                    app.currentIndex++;
+if (app.currentIndex >= app.currentPhrases.length) {
+                        alert("Mäng on läbi!");
+app.showMenu();
+                        return;
+                    }
+                    this.setupGame();
+},
+                setupGame() {
+                    this.gameType = Math.floor(Math.random() * 3);
+const phrase = app.getCurrentPhrase();
+                    if (!phrase) { app.showMenu(); return; }
+
+                    const dynamicPhrase = app.getDynamicPhrase(phrase);
+document.getElementById('fun-source-phrase').textContent = dynamicPhrase.source;
+                    document.getElementById('fun-feedback').classList.add('hidden');
+                    document.getElementById('fun-next-btn').classList.add('hidden');
+                    const gameArea = document.getElementById('fun-game-area');
+                    gameArea.innerHTML = '';
+if (this.gameType === 0) { // Multiple choice
+                        const options = this.generateMultipleChoiceOptions(dynamicPhrase);
+gameArea.innerHTML = options.map(opt => `<button class="btn choice-btn" onclick="app.modes.fun.checkAnswer(this, '${btoa(opt)}')">${opt}</button>`).join('');
+                    } else if (this.gameType === 1) { // True/False
+                        const isCorrect = Math.random() > 0.5;
+const displayPhrase = isCorrect ? dynamicPhrase.target : this.getWrongOption(dynamicPhrase);
+                        gameArea.innerHTML = `
+                            <p style="font-style: italic; font-size: 1.2rem;">"${displayPhrase}"</p>
+                            <div style="display: flex; gap: 1rem; justify-content: center;">
+                        
+        <button class="btn btn-success" onclick="app.modes.fun.checkAnswer(this, ${isCorrect})">Õige</button>
+                                <button class="btn btn-danger" onclick="app.modes.fun.checkAnswer(this, ${!isCorrect})">Vale</button>
+                            </div>
+                        
+`;
+                    } else { // Word order
+                        const words = app.shuffleArray(dynamicPhrase.target.split(' '));
+gameArea.innerHTML = `
+                            <div class="sentence-area" id="fun-sentence-area"></div>
+                            <div class="word-bank" id="fun-word-bank">
+                                ${words.map(w => `<span class="word-token" onclick="app.modes.fun.moveWord(this)">${w}</span>`).join('')}
+  
+                          </div>
+                            <button class="btn" style="margin-top: 1rem;"
+onclick="app.modes.fun.checkAnswer(this)">Kontrolli</button>
+                        `;
+}
+                },
+                generateMultipleChoiceOptions(correctDynamicPhrase) {
+                    let options = [correctDynamicPhrase.target];
+while (options.length < 3) {
+                        const wrongOption = this.getWrongOption(correctDynamicPhrase);
+if (!options.includes(wrongOption)) {
+                            options.push(wrongOption);
+}
+                    }
+                    return app.shuffleArray(options);
+},
+                getWrongOption(dynamicPhrase) {
+                    const otherPhrases = app.phrases.filter(p => p.id !== dynamicPhrase.original.id);
+const randomPhrase = otherPhrases[Math.floor(Math.random() * otherPhrases.length)];
+                    return app.getDynamicPhrase(randomPhrase).target;
+                },
+                moveWord(wordElement) {
+                    const sentenceArea = document.getElementById('fun-sentence-area');
+const wordBank = document.getElementById('fun-word-bank');
+                    if (wordElement.parentElement.id === 'fun-word-bank') {
+                        sentenceArea.appendChild(wordElement);
+} else {
+                        wordBank.appendChild(wordElement);
+}
+                },
+                checkAnswer(button, answer) {
+                    button.closest('#fun-game-area').querySelectorAll('button, .word-token').forEach(el => {
+                        el.onclick = null;
+                 
+       el.style.cursor = 'default';
+                    });
+const dynamicPhrase = app.getDynamicPhrase(app.getCurrentPhrase());
+                    const feedbackElem = document.getElementById('fun-feedback');
+                    let isCorrect = false;
+if (this.gameType === 0) {
+                        isCorrect = atob(answer) === dynamicPhrase.target;
+} else if (this.gameType === 1) {
+                        isCorrect = answer;
+} else {
+                        const sentenceArea = document.getElementById('fun-sentence-area');
+const words = Array.from(sentenceArea.children).map(w => w.textContent);
+                        const userAnswer = words.join(' ');
+                        isCorrect = userAnswer === dynamicPhrase.target;
+}
+
+                    if (isCorrect) {
+                        feedbackElem.textContent = 'Õige!';
+feedbackElem.className = 'feedback correct';
+                    } else {
+                        feedbackElem.textContent = `Vale.
+Õige vastus on: "${dynamicPhrase.target}"`;
+                        feedbackElem.className = 'feedback wrong';
+                    }
+
+                    feedbackElem.classList.remove('hidden');
+document.getElementById('fun-next-btn').classList.remove('hidden');
+                }
+            },
+            test: {
+                questions: [],
+                start() {
+                    if (app.currentPhrases.length < 1) {
+                
+        alert("Pole ühtegi fraasi, mida testida. Muuda valikut peamenüüs, et lisada sõnu.");
+                        app.showMenu();
+return;
+                    }
+
+                    this.questions = [...app.currentPhrases];
+const questionsContainer = document.getElementById('test-questions');
+                    questionsContainer.innerHTML = this.questions.map((q, index) => {
+                        const dynamicQ = app.getDynamicPhrase(q);
+                        return `
+                        <div class="test-question">
+              
+              <p>${index + 1}. ${dynamicQ.source}</p>
+                            <input type="text" class="input-field" data-id="${q.id}" aria-label="Vastus küsimusele ${index + 1}">
+                        </div>
+                    `}).join('') + `<button 
+class="btn" onclick="app.modes.test.check()">Kontrolli</button>`;
+
+                    document.getElementById('test-setup').classList.add('hidden');
+                    document.getElementById('test-questions').classList.remove('hidden');
+                    document.getElementById('test-results').classList.add('hidden');
+                },
+                check() {
+                    let totalPoints = 0;
+let maxPoints = this.questions.length;
+                    let resultsHtml = '<h3>Tulemused</h3>';
+
+                    this.questions.forEach((q, index) => {
+                        const dynamicQ = app.getDynamicPhrase(q);
+                        const input = document.querySelector(`#test-questions input[data-id='${q.id}']`);
+                        const userAnswer = input.value.trim();
+       
+                 const correctAnswer = dynamicQ.target;
+
+                        const normalizedUserAnswer = app.normalizeString(userAnswer);
+                        const normalizedCorrectAnswer = app.normalizeString(correctAnswer);
+
+                        let points 
+= 0;
+                        let comment = 'Vale.';
+                        const distance = app.levenshtein(normalizedUserAnswer, normalizedCorrectAnswer);
+
+                        if (distance === 0) {
+                
+            points = 1;
+                            comment = "Täiesti õige!";
+                        } else if (distance <= 2) {
+                         
+   points = 0.5;
+                            comment = "Peaaegu õige (1-2 viga).";
+}
+
+                        totalPoints += points;
+resultsHtml += `
+                            <div class="test-question test-result-item">
+                                <p>${index + 1}.
+${dynamicQ.source}</p>
+                                <div>Sinu vastus: <span class="user-answer">"${userAnswer}"</span></div>
+                                <div>Õige vastus: <span class="correct-answer">"${correctAnswer}"</span></div>
+                              
+  <div><b>Tulemus: ${points} / 1 punkti.</b> ${comment}</div>
+                            </div>
+                        `;
+});
+
+                    const percentage = maxPoints > 0 ? (totalPoints / maxPoints * 100).toFixed(2) : 0;
+const summary = `
+                        <div id="test-summary" class="card">
+                            <h2>Testi kokkuvõte</h2>
+                            <p style="font-size: 1.5rem;">Sa said <b>${totalPoints} / ${maxPoints}</b> punkti (${percentage}%)</p>
+      
+                      ${percentage == 100 ?
+"<p>Suurepärane töö!</p>" : ""}
+                            <button class="btn" style="margin-top: 1rem;"
+onclick="app.showMenu()">Tagasi menüüsse</button>
+                        </div>
+                    `;
+document.getElementById('test-questions').classList.add('hidden');
+                    const resultsContainer = document.getElementById('test-results');
+                    resultsContainer.innerHTML = summary + resultsHtml;
+                    resultsContainer.classList.remove('hidden');
+}
+            }
+        }
+    };
+document.addEventListener('DOMContentLoaded', () => {
+        app.init();
+    });
+    </script>
+</body>
+</html>
+
